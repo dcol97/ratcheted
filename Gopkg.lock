@@ -3,81 +3,61 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2ca896615a485f84d0509cab13cf95e08e99ac7305934eb79fbcda48570eabd7"
   name = "github.com/Nik-U/pbc"
   packages = ["."]
-  pruneopts = "UT"
   revision = "12f3f0abc76db4319de8036959dc3a6d060838fe"
 
 [[projects]]
   branch = "master"
-  digest = "1:ca3a1857e388ea7d31eb98af48ea52a82478c70948f617c4842a57cc6867ed9f"
   name = "github.com/alecthomas/binary"
   packages = ["."]
-  pruneopts = "UT"
   revision = "6e8df1b1fb9d591dfc8249e230e0a762524873f3"
 
 [[projects]]
-  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  pruneopts = "UT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:81a4e95e0d07e744bfb2039c6689c7865532f774b0a7bbf68d3323c71aab0330"
   name = "github.com/dchest/wots"
   packages = ["."]
-  pruneopts = "UT"
   revision = "b19125f232231228ca68fda9dfe9dfde490cc3c0"
 
 [[projects]]
-  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
   name = "github.com/pkg/errors"
   packages = ["."]
-  pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
-  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
-  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:c40d65817cdd41fac9aa7af8bed56927bb2d6d47e4fea566a74880f5c2b1c41e"
+  branch = "master"
+  name = "github.com/qantik/ratcheted"
+  packages = ["acd","dv","jmm","js","pr","primitives","primitives/encryption","primitives/hibe","primitives/signature"]
+  revision = "9c681e2a548b7e9d5d495eb16e0d5be7ea1f92d7"
+
+[[projects]]
   name = "github.com/stretchr/testify"
-  packages = [
-    "assert",
-    "require",
-  ]
-  pruneopts = "UT"
+  packages = ["assert","require"]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:86f286e7afe01694ffd50bf9226ce2158a75ad099c03071be32b592d68115325"
   name = "golang.org/x/crypto"
   packages = ["hkdf"]
-  pruneopts = "UT"
   revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/Nik-U/pbc",
-    "github.com/alecthomas/binary",
-    "github.com/dchest/wots",
-    "github.com/pkg/errors",
-    "github.com/stretchr/testify/require",
-    "golang.org/x/crypto/hkdf",
-  ]
+  inputs-digest = "572210a9f79ef072031e7793632feea39726929961a6b85b86b0f461bd55f8ee"
   solver-name = "gps-cdcl"
   solver-version = 1
