@@ -36,7 +36,7 @@ func old() {
 	fmt.Printf("Received:\t%s\n", r)
 }
 
-func play() {
+func play_linearek() {
 	inst := kukem.NewLinearEK()
 	params, initdk, err := inst.Setup(nil, 5)
 	newEK, ct, k, err := inst.Encaps(params, initdk)
@@ -60,6 +60,32 @@ func play() {
 	fmt.Println(err)
 }
 
+func play_lineardk() {
+	inst := kukem.NewLinearDK()
+	params, initdk, err := inst.Setup(nil, 5)
+	newEK, ct, k, err := inst.Encaps(params, initdk)
+	//	fmt.Println("NewEK", newEK, len(newEK))
+	//	fmt.Println("ct", ct, len(ct))
+	fmt.Println("k", k, len(k))
+	newDK, k, err := inst.Decaps(params, initdk, ct)
+	//	fmt.Println("newDK", newDK)
+	fmt.Println("k", k)
+
+	fmt.Println(err)
+	fmt.Println(newEK, newDK)
+	ad := []byte{0, 1, 2, 3}
+	newek, err := inst.UpdateEK(params, newEK, ad)
+	newdk, err := inst.UpdateDK(params, newDK, ad)
+	newerEK, ct, k, err := inst.Encaps(params, newek)
+	fmt.Println("NewerEK", newerEK, len(newerEK))
+	fmt.Println("ct", ct, len(ct))
+	fmt.Println("k", k, len(k))
+	newerDK, k, err := inst.Decaps(params, newdk, ct)
+	fmt.Println("newerDK", newerDK)
+	fmt.Println("k", k)
+}
+
 func main() {
-	play()
+	//	play_linearek()
+	play_lineardk()
 }

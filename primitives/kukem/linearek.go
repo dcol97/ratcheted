@@ -21,10 +21,6 @@ type linearEKParams struct {
 	T uint32
 }
 
-type linearEKCiphertext struct {
-	ct ristretto.Point
-}
-
 // Can be EK and possibly DK at a given point
 type linearEKEntity struct {
 	DK     ristretto.Scalar
@@ -48,15 +44,15 @@ func NewLinearEK() *LinearEK {
 // H_1 : Z_p* -> Z_p*
 // H_2: Z_p* x G x {0, 1}^{*} -> Z_p*
 // H_3 : G -> {0, 1}^{256}
-// TODO: Use different prefixes for each H_i
+// TODO: Use different prefixes for each H_i (important for practice)
 
-func HashOne(s []byte) ([]byte, error) {
+func HashOneLEK(s []byte) ([]byte, error) {
 	h := sha256.New()
 	h.Write(s)
 	return h.Sum(nil), nil
 }
 
-func HashTwo(prevad, ct, ad []byte) ([]byte, error) {
+func HashTwoLEK(prevad, ct, ad []byte) ([]byte, error) {
 	// Checking that prevad, ct are 32 bytes long
 	if len(prevad) != 32 || len(ct) != 32 {
 		fmt.Println("nil here")
@@ -71,7 +67,7 @@ func HashTwo(prevad, ct, ad []byte) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-func HashThree(s []byte) ([]byte, error) {
+func HashThreeLEK(s []byte) ([]byte, error) {
 	h := sha256.New()
 	h.Write(s)
 	return h.Sum(nil), nil
@@ -88,7 +84,7 @@ func (l LinearEK) Setup(seed []byte, t int) (params, initdk []byte, err error) {
 	var tempDecapsKey ristretto.Scalar
 	tempDecapsKey.Set(&decapsKey)
 	for i := 1; i <= t; i++ {
-		newTempDkBytes, _ := HashOne(tempDecapsKey.Bytes())
+		newTempDkBytes, _ := HashOneLEK(tempDecapsKey.Bytes())
 		tempDecapsKey.Derive(newTempDkBytes)
 		encapsKey[i].ScalarMultBase(&tempDecapsKey)
 	}
@@ -147,7 +143,7 @@ func (l LinearEK) UpdateEK(params, ek, ad []byte) (newek []byte, err error) {
 		inct = e.CT_EK
 	}
 
-	newadek, _ := HashTwo(inad, inct, ad)
+	newadek, _ := HashTwoLEK(inad, inct, ad)
 	e.AD_EK = newadek
 	e.Ind_EK = e.Ind_EK + 1
 	e.CT_EK = []byte{}
@@ -172,7 +168,7 @@ func (l LinearEK) UpdateDK(params, dk, ad []byte) (newdk []byte, err error) {
 	}
 
 	var dkvar ristretto.Scalar
-	newTempDkBytes, _ := HashOne(e.DK.Bytes())
+	newTempDkBytes, _ := HashOneLEK(e.DK.Bytes())
 	dkvar.Derive(newTempDkBytes)
 	e.DK.Set(&dkvar)
 
@@ -191,7 +187,7 @@ func (l LinearEK) UpdateDK(params, dk, ad []byte) (newdk []byte, err error) {
 		inct = e.CT_DK
 	}
 
-	newaddk, _ := HashTwo(inad, inct, ad)
+	newaddk, _ := HashTwoLEK(inad, inct, ad)
 	e.AD_DK = newaddk
 	e.Ind_DK = e.Ind_DK + 1
 	e.CT_DK = []byte{}
@@ -237,7 +233,7 @@ func (l LinearEK) Encaps(params, ek []byte) (newEK []byte, ct []byte, k []byte, 
 	// TODO: if EK elts are removed on update, index is always 0
 	yInd.Set(&e.EKs[e.Ind_EK])
 	yInd.ScalarMult(&yInd, &rand)
-	k, _ = HashThree(yInd.Bytes())
+	k, _ = HashThreeLEK(yInd.Bytes())
 	newEK, err = e.GobEncode()
 	return
 }
@@ -274,7 +270,7 @@ func (l LinearEK) Decaps(params, dk, ct []byte) (newDK []byte, k []byte, err err
 	copy(tempct[:], ct)
 	c.SetBytes(&tempct)
 	c.ScalarMult(&c, &exp)
-	k, _ = HashThree(c.Bytes())
+	k, _ = HashThreeLEK(c.Bytes())
 
 	e.CT_DK = ct
 	newDK, err = e.GobEncode()
