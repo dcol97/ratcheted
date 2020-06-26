@@ -17,11 +17,12 @@ import (
 
 var zero = new(big.Int).SetInt64(0)
 var one = new(big.Int).SetInt64(1)
-var bitlen = 512
 var digbits = 256
 
 // LinearDK designates a Linear DK protocol instance.
-type LinearDK struct{}
+type LinearDK struct {
+	Bitlen int
+}
 
 // linearDKParams composes the public parameters of a protocol instance.
 // Base point (generator of prime order (sub)group) is implicit
@@ -56,8 +57,8 @@ type linearDKEntity struct {
 }
 
 // NewLinearDK creates a fresh protocol instance
-func NewLinearDK() *LinearDK {
-	return &LinearDK{}
+func NewLinearDK(bitlen int) *LinearDK {
+	return &LinearDK{Bitlen: bitlen}
 }
 
 // Hash functions
@@ -110,7 +111,7 @@ func HashOneLDK(in *big.Int, a0s, a1s []*big.Int, nn *big.Int) (*big.Int, error)
 	return prod, nil
 }
 
-func HashTwoLDK(prevad, ct, ad []byte) ([]byte, error) {
+func HashTwoLDK(prevad, ct, ad []byte, bitlen int) ([]byte, error) {
 	// Checking that prevad is
 	// TODO: check len of ct and prevad
 	data := make([]byte, 0, len(prevad)+len(ct)+len(ad))
@@ -139,8 +140,17 @@ func HashThreeLDK(s []byte) ([]byte, error) {
 // FIXME: Use seed
 func (l LinearDK) Setup(seed []byte, t int) (params, initdk []byte, err error) {
 	// assuming bitlen is even
-	p, pdash := getSafePrime(bitlen/2 - 1)
-	q, qdash := getSafePrime(bitlen/2 - 1)
+	bitlen := l.Bitlen
+	var p, pdash, q, qdash *big.Int
+	if bitlen == 2048 {
+		p, _ = new(big.Int).SetString("147596411006181089386129244352705723616351868461555641239967690199541917786928938400967319212516077644805674702792480696049125599442468141400782112016559658245332768498550968132920968132090721734509322395697947774030189769533590563128658868660446084145054384791000178390013732899249554550292976624918572134099", 10)
+		pdash, _ = new(big.Int).SetString("73798205503090544693064622176352861808175934230777820619983845099770958893464469200483659606258038822402837351396240348024562799721234070700391056008279829122666384249275484066460484066045360867254661197848973887015094884766795281564329434330223042072527192395500089195006866449624777275146488312459286067049", 10)
+		q, _ = new(big.Int).SetString("170918028960163089123473236661726015758889461308697600215662369039181191572798825592552076697249849215853222677847855731589185352122636329701967886923309293908736899202853958166323267094701291915319388325415022596114812824512664598677400118945105672662576344050510534043516802409721724311305071589674500818499", 10)
+		qdash, _ = new(big.Int).SetString("85459014480081544561736618330863007879444730654348800107831184519590595786399412796276038348624924607926611338923927865794592676061318164850983943461654646954368449601426979083161633547350645957659694162707511298057406412256332299338700059472552836331288172025255267021758401204860862155652535794837250409249", 10)
+	} else {
+		p, pdash = getSafePrime(bitlen/2 - 1)
+		q, qdash = getSafePrime(bitlen/2 - 1)
+	}
 	pdashqdash := new(big.Int).Mul(pdash, qdash)
 
 	n := new(big.Int).Mul(p, q)
@@ -247,6 +257,7 @@ func (l LinearDK) Setup(seed []byte, t int) (params, initdk []byte, err error) {
 }
 
 func (l LinearDK) UpdateEK(params, ek, ad []byte) (newek []byte, err error) {
+	bitlen := l.Bitlen
 	var p linearDKParams
 	if err = p.GobDecode(params); err != nil {
 		return
@@ -276,7 +287,7 @@ func (l LinearDK) UpdateEK(params, ek, ad []byte) (newek []byte, err error) {
 		inct = e.CT_EK
 	}
 
-	newadek, _ := HashTwoLDK(inad, inct, ad)
+	newadek, _ := HashTwoLDK(inad, inct, ad, bitlen)
 	e.EK, _ = HashOneLDK(e.EK, p.A0s, p.A1s, p.N2)
 	e.AD_EK = newadek
 	e.Ind_EK = e.Ind_EK + 1
@@ -287,6 +298,7 @@ func (l LinearDK) UpdateEK(params, ek, ad []byte) (newek []byte, err error) {
 }
 
 func (l LinearDK) UpdateDK(params, dk, ad []byte) (newdk []byte, err error) {
+	bitlen := l.Bitlen
 	var p linearDKParams
 	if err = p.GobDecode(params); err != nil {
 		return
@@ -318,7 +330,7 @@ func (l LinearDK) UpdateDK(params, dk, ad []byte) (newdk []byte, err error) {
 		inct = e.CT_DK
 	}
 
-	newaddk, _ := HashTwoLDK(inad, inct, ad)
+	newaddk, _ := HashTwoLDK(inad, inct, ad, bitlen)
 	e.AD_DK = newaddk
 	e.Ind_DK = e.Ind_DK + 1
 	e.CT_DK = []byte{}

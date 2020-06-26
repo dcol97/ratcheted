@@ -12,7 +12,7 @@ import (
 )
 
 // maxDepth is the limit to how deep a Boneh hierarchy can reach.
-const maxDepth = 10
+const maxDepth = 11
 
 // Boneh designates a Boneh-Boyen-Goh protocol instance.
 type Boneh struct{}

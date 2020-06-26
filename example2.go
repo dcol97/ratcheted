@@ -6,6 +6,7 @@ import (
 
 	"github.com/qantik/ratcheted/dv"
 	"github.com/qantik/ratcheted/primitives/encryption"
+	"github.com/qantik/ratcheted/primitives/hibe"
 	"github.com/qantik/ratcheted/primitives/signature"
 	"ratcheted/primitives/kukem"
 )
@@ -61,7 +62,7 @@ func play_linearek() {
 }
 
 func play_lineardk() {
-	inst := kukem.NewLinearDK()
+	inst := kukem.NewLinearDK(2048)
 	params, initdk, err := inst.Setup(nil, 5)
 	newEK, ct, k, err := inst.Encaps(params, initdk)
 	//	fmt.Println("NewEK", newEK, len(newEK))
@@ -85,7 +86,30 @@ func play_lineardk() {
 	fmt.Println("k", k)
 }
 
+func play_gentry() {
+	inst := hibe.NewGentry()
+	params, root, _ := inst.Setup(nil)
+	msg := []byte{
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+	}
+	id := make([][]byte, 0)
+	id = append(id, msg)
+	c1, c2, _ := inst.Encrypt(params, msg, id)
+	ent, _ := inst.Extract(root, msg)
+	dec, _ := inst.Decrypt(ent, c1, c2)
+	fmt.Println(msg)
+	fmt.Println(dec)
+}
+
 func main() {
 	//	play_linearek()
-	play_lineardk()
+	// play_lineardk()
+	play_gentry()
 }
